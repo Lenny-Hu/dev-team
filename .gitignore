@@ -3,7 +3,7 @@
 !.zcode/workflows/
 
 # 软件开发团队运行时产出（每次召唤重新生成，需要留存可删掉这两行）
-.dev-team/
+docs/dev-team/
 
 # Node
 node_modules/
