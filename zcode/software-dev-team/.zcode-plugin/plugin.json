@@ -1,0 +1,11 @@
+{
+  "name": "software-dev-team",
+  "version": "0.1.0",
+  "description": "召唤一支由交付总监带队的软件开发团队：产品经理定需求、架构师做设计拆任务、工程师并行实现、QA 验证质量，小需求支持快速模式。",
+  "author": {
+    "name": "dev-team"
+  },
+  "license": "MIT",
+  "skills": "skills",
+  "commands": "commands"
+}

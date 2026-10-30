@@ -1,0 +1,32 @@
+# ZCode 运行时产物：工作流草稿、会话状态等本机生成内容（.zcode/workflows/ 下手动保存的工作流定义除外）
+.zcode/*
+!.zcode/workflows/
+
+# 软件开发团队运行时产出（每次召唤重新生成，需要留存可删掉这两行）
+.dev-team/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# 日志与临时文件
+*.log
+*.tmp
+*.temp
+
+# 操作系统垃圾文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble/
+.LSOverride
+
+# 编辑器目录
+.vscode/
+.idea/
+*.swp
+*.swo
