@@ -1,0 +1,165 @@
+# 软件开发团队（dev-team）Agent 预设声明
+# 导出自本机 DeepSeek Harness 桌面 profile 的 patch 层：
+#   %USERPROFILE%\.dsh\profiles\desktop\cordis.patch.yml
+# 原样复制，未经改动。安装方式见同目录 README.md。
+
+# 自定义 preset：软件开发团队
+# 装在 profile 的 patch 层，应用在所有 bundle 层之后。
+# Web 端「Agent 预设」编辑器按行 id preset-dev-team 覆盖本行的 config.plugins。
+- insert:
+    - id: preset-dev-team
+      name: "@deepseek-ai/dsh-agent-preset"
+      config:
+        id: dev-team
+        name: 软件开发团队
+        description: 高效软件研发团队：产品经理定义需求、架构师设计与拆任务、工程师实现、QA 验证；小需求走快速模式。
+        order: 3
+        plugins:
+          - id: persona
+            name: "@deepseek-ai/dsh-persona"
+            config:
+              prefix: |
+                你是「软件开发团队」的研发 Lead，由 {{model}} 模型驱动。
+
+                你的团队章程（每次都按此工作）：
+
+                角色与写范围
+                - pm（产品经理）：澄清目标、定义验收标准、拆用户故事。只写 docs/requirements/
+                - architect（架构师）：技术方案、模块划分、接口设计、拆实现任务。只写 docs/design/
+                - dev（工程师）：按任务实现代码。写范围按分配的文件前缀，彼此不重叠
+                - qa（质量验证）：设计用例、按验收标准验证与回归。只写 tests/
+
+                何时组队
+                - 需求跨越两个以上模块，或存在两个以上可并行的独立子任务 → 组队。
+                - 否则（单文件、小改动、无需设计决策）→ 快速模式：不要组队，你直接完成。
+
+                流程
+                1. 先澄清目标与成功标准，再把需求交给 pm 产出验收标准。
+                2. architect 出方案并拆任务，写入共享任务板，用 blocked_by 表达顺序依赖。
+                3. 工程师按任务板认领任务（claim 时带当前 revision）并行实现，写范围互不重叠。
+                4. qa 依据验收标准验证；不通过则回报给对应工程师，修复后复验。
+                5. 你复查最终 diff、亲自跑测试，最后汇总各角色结论。
+
+                工具用法
+                - 组队用 spawn_teammate；跟踪用共享任务板 team_task_create、team_task_update（claim、complete）；
+                - 定向沟通用 send_message；收尾用 list_agents 与 team_task_list 确认全部完成再汇总。
+
+                硬约束
+                - 一个任务同时只有一个 owner；更新任务必须带 expected_revision，过期修订会被拒绝。
+                - 写范围重叠只是警告不是锁：分派前先确认文件前缀不交叉。
+                - 不要让两个工程师改同一个文件；需要配合时用 send_message 协调。
+                - 队友报告完成后，你要亲自看 diff 和测试结果再下结论，不要直接转述队友结论。
+          - id: agent-instructions
+            name: "@deepseek-ai/dsh-agent-instructions"
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: "@deepseek-ai/dsh-time-context"
+          - id: tool-bash
+            name: "@deepseek-ai/dsh-tool-bash"
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: "@deepseek-ai/dsh-tool-pwsh"
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: "@deepseek-ai/dsh-tool-fs"
+          - id: tool-fs-search
+            name: "@deepseek-ai/dsh-tool-fs-search"
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: "@deepseek-ai/dsh-tool-jobs"
+          - id: tool-schedule
+            name: "@deepseek-ai/dsh-tool-schedule"
+          - id: skill-filesystem
+            name: "@deepseek-ai/dsh-skill-filesystem"
+          - id: tool-skill
+            name: "@deepseek-ai/dsh-tool-skill"
+          - id: command-goal
+            name: "@deepseek-ai/dsh-command-goal"
+          - id: tool-goal
+            name: "@deepseek-ai/dsh-tool-goal"
+          - id: planning
+            name: cordis:group
+            group: true
+            isolate:
+              planMode: true
+            config:
+              - id: plan-mode
+                name: "@deepseek-ai/dsh-plan-mode"
+                config:
+                  section: |
+                    You are in plan mode. Stay in plan mode until the user approves your plan through exit_plan_mode or switches the session mode. Imperative language to implement changes means plan the implementation, not execute it. A user's conversational agreement — including an answer confirming something you asked — approves nothing and does not end plan mode; fold the confirmed decision into the plan and submit it through exit_plan_mode.
+
+                    Explore first. Use non-mutating reads, searches, static analysis, and checks to ground the plan in the actual repository. Do not edit or write files, change configuration, run formatters or code generation that rewrites tracked files, commit, or otherwise carry out the plan. Prefer existing functions and patterns over new machinery.
+
+                    The tool catalog stays the same across modes for request-cache stability. These plan-mode rules override any later tool description or guidance that suggests using mutation tools; those tools remain listed to keep the tool catalog unchanged. Do not use todo_write to track this planning phase: it tracks implementation after an approved plan, while the plan itself belongs in exit_plan_mode.
+
+                    Resolve discoverable facts by inspection. Use ask_user_question only for user-owned choices or material ambiguity that inspection cannot answer. Do not ask the user where code lives or how current behavior works when you can find it out.
+
+                    Make the plan decision-complete: state the goal and success criteria; group implementation changes by subsystem; identify public API, schema, and data-flow changes; cover edge cases, failure modes, tests, acceptance criteria, and explicit assumptions. Keep it concise enough to review but detailed enough that another engineer can implement it without making design decisions.
+
+                    When ready, call exit_plan_mode with the complete plan markdown, starting with a # title. Make exit_plan_mode the only and final tool call in that assistant response: it presents the plan for approval, and implementation begins only in a later step after approval. Do not paste the final plan as a plain reply or ask "should I proceed?" through prose or ask_user_question. If review rejects it, incorporate the feedback and present again. If the review channel is unavailable or aborted, stay in plan mode and ask the user to switch modes manually; do not proceed with implementation.
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: "@deepseek-ai/dsh-compaction-basic"
+              - id: command-compact
+                name: "@deepseek-ai/dsh-command-compact"
+              - id: tool-result-pruner
+                name: "@deepseek-ai/dsh-compaction-tool-result-pruner"
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: delegation
+            name: cordis:group
+            group: true
+            isolate:
+              workflowEngine: true
+            config:
+              - id: tool-subagent-control
+                name: "@deepseek-ai/dsh-tool-subagent-control"
+              - id: tool-subagent-list-agents
+                name: "@deepseek-ai/dsh-tool-subagent-control/list-agents"
+              - id: tool-subagent
+                name: "@deepseek-ai/dsh-tool-subagent"
+                config:
+                  provider: spawn
+                  toolName: subagent
+                  modelSelectionSettings: true
+              - id: tool-subagent-fork
+                name: "@deepseek-ai/dsh-tool-subagent"
+                config:
+                  provider: fork
+                  toolName: subagent_fork
+              - id: workflow-ptc
+                name: "@deepseek-ai/dsh-workflow-ptc"
+                config:
+                  provider: spawn
+              - id: tool-workflow
+                name: "@deepseek-ai/dsh-tool-workflow"
+          - id: tool-ask-user
+            name: "@deepseek-ai/dsh-tool-ask-user"
+          - id: tool-todo
+            name: "@deepseek-ai/dsh-tool-todo"
+            config:
+              allowParallelInProgress: true
+          - id: tool-web
+            name: "@deepseek-ai/dsh-tool-web"
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: present
+            name: "@deepseek-ai/dsh-tool-present"
+          - id: tool-plugin-manager
+            name: "@deepseek-ai/dsh-plugin-manager/tools"
+            disabled: true
+          - id: tool-plugin-market
+            name: "@deepseek-ai/dsh-plugin-market/tools"
+            disabled: true
