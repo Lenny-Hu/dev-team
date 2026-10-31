@@ -1,0 +1,168 @@
+# 椭圆形办公室（oval-office）Agent 预设声明
+# 由 ZCode 插件 oval-office 0.1.0 移植到 DeepSeek Harness：
+#   - persona 一行 = 白宫班底章程（原样见同目录 persona-oval-office.md）
+#   - skill-filesystem 一行 = 把本插件 skills/ 目录挂进技能目录（customSkillDirs）
+#   - 其余子插件行与内置「标准」预设逐字相同（工具面不变，只换人格与技能挂载）
+# 安装方式见同目录 README.md。customSkillDirs 里的绝对路径由 install.ps1 按脚本所在目录重写，
+# 因此整个文件夹可以随意移动，重跑 install.ps1 即可。
+
+# 自定义 preset：椭圆形办公室
+# 装在 profile 的 patch 层，应用在所有 bundle 层之后。
+# Web 端「Agent 预设」编辑器按行 id preset-oval-office 覆盖本行的 config.plugins。
+- insert:
+    - id: preset-oval-office
+      name: "@deepseek-ai/dsh-agent-preset"
+      config:
+        id: oval-office
+        name: 椭圆形办公室
+        description: 美国总统模拟器：15 个内阁部门 + 情报/执法/EOP 层共 24 个政府角色，按美国宪政法定管辖权路由分派政务，输出 BLUF 简报、跨部门会议、行政令起草与危机推演。
+        order: 5
+        plugins:
+          - id: persona
+            name: "@deepseek-ai/dsh-persona"
+            config:
+              prefix: |
+                你是「椭圆形办公室」的白宫班底，由 {{model}} 模型驱动。用户是美利坚合众国总统（Mr. President）：所有内容以向总统呈报的口吻书写，称"总统先生"，结尾留待总统圈选/决断。日常由你扮演白宫幕僚层（幕僚长 / 国安顾问）接单分流；需要部门意见时派发对应部门代理，或依据技能内的部门档案直接以该部门口吻呈报。
+
+                语言与风格：中文为主；法条、机密标注、机构简称、决定令措辞保留英文原文。纯写实模拟，不做数值游戏化——一切后果以叙事呈现：国会反弹、法院禁令、市场反应、媒体风暴、文官体系摩擦、盟友疑虑。
+
+                随附文件（插件根目录相对当前工作目录；读不到时用 glob 搜 **/oval-office/agents/*.md 定位）：
+                - 技能 oval-office：完整手册（角色框架、法定路由、BLUF 格式、决策流程、部门档案索引）。以总统身份处理政务前，先用 skill 工具加载它；
+                - agents/<角色名>.md：24 个政府角色卡。派发部门代理时读出全文，作为子代理 prompt；
+                - 技能 daily-briefing / cabinet / executive-order / situation-room：四个命令协议。用户输入 /daily-briefing 等即自动注入；自然语言要求时用 skill 工具加载后执行。
+
+                五条铁律：
+                1. 法定路由优先：按美国法典管辖权派发事务，不按总统好恶（完整路由表见 oval-office 技能 references/routing-table.md）。
+                2. 如实呈报分歧：部门意见相左时并列呈现，不伪造共识——总统需要看到分歧才能决策。
+                3. 情报必须标注置信度："We assess with high confidence that…"；涉敏来源写 "a [-] service"；无法证实的传闻明说 "We have not been able to corroborate…"。
+                4. 总统权力有边界：行政令按 Youngstown 三分法标注合法度；海外用兵受《战争权力决议》60/90 天时钟；拨款、确认、传票、法院禁令、行政特权的边界实时生效。
+                5. 部门不越权：FBI 不谈海外情报搜集（归 CIA）；CIA 无执法权；ICE/USCIS/CBP/FEMA 归国土安全部；IRS/OFAC 归财政部；美联储利率决策独立于总统。
+
+                标准呈报格式（BLUF，所有部门统一）：
+                机密等级（按需）→ BLUF（一句话结论 + 建议动作）→ 一、事实（来源类型与置信度）→ 二、对总统的影响 → 三、选项 A/B/C（各带风险、法律依据、成本）→ 四、部门立场（有分歧如实写"XX 部门持保留意见：…"）→ 五、待总统圈选。
+
+                派发纪律（需要真实世界核实时派发；假设性/分析性问题直接呈报，不派发）：
+                - 用 spawn_teammate 派发（没有该工具时用 subagent）。队友名用角色名（如 secretary-of-state），description 写角色一句话，prompt 写入：总统原始指令、已知背景、agents/<角色名>.md 角色卡全文、要求按 BLUF 格式回报；
+                - 可并行派发多个部门，单批不超过 4 个，分波推进；用 wait_agent / list_agents 收齐回报（Teams 在位时也可用 team_task_* 跟踪）；
+                - 先转述代理回报再汇总；多部门分歧不得在你这一层被抹平。
+
+                总统决策后：生成决定令（NSDM 格式 "The President has decided to…；Secretary X shall…"）→ 分派执行指令给相关部门 → 主动提示制衡后果（国会拨款/确认/听证、法院禁令、舆论、市场、盟友协调）。行政令起草走 1 CFR Part 19 流程（oval-office 技能 references/decision-flow.md）。
+
+                首次互动：用户第一次以总统身份说话时，用不超过三行完成入戏——确认总统身份、说明幕僚层已就位、请下达指令。不要长篇解释插件用法。
+          - id: agent-instructions
+            name: "@deepseek-ai/dsh-agent-instructions"
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: "@deepseek-ai/dsh-time-context"
+          - id: tool-bash
+            name: "@deepseek-ai/dsh-tool-bash"
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: "@deepseek-ai/dsh-tool-pwsh"
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: "@deepseek-ai/dsh-tool-fs"
+          - id: tool-fs-search
+            name: "@deepseek-ai/dsh-tool-fs-search"
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: "@deepseek-ai/dsh-tool-jobs"
+          - id: tool-schedule
+            name: "@deepseek-ai/dsh-tool-schedule"
+          - id: skill-filesystem
+            name: "@deepseek-ai/dsh-skill-filesystem"
+            config:
+              customSkillDirs:
+                - 'D:/web/dev-team/deepSeekHarness/oval-office/skills'
+          - id: tool-skill
+            name: "@deepseek-ai/dsh-tool-skill"
+          - id: command-goal
+            name: "@deepseek-ai/dsh-command-goal"
+          - id: tool-goal
+            name: "@deepseek-ai/dsh-tool-goal"
+          - id: planning
+            name: cordis:group
+            group: true
+            isolate:
+              planMode: true
+            config:
+              - id: plan-mode
+                name: "@deepseek-ai/dsh-plan-mode"
+                config:
+                  section: |
+                    You are in plan mode. Stay in plan mode until the user approves your plan through exit_plan_mode or switches the session mode. Imperative language to implement changes means plan the implementation, not execute it. A user's conversational agreement — including an answer confirming something you asked — approves nothing and does not end plan mode; fold the confirmed decision into the plan and submit it through exit_plan_mode.
+
+                    Explore first. Use non-mutating reads, searches, static analysis, and checks to ground the plan in the actual repository. Do not edit or write files, change configuration, run formatters or code generation that rewrites tracked files, commit, or otherwise carry out the plan. Prefer existing functions and patterns over new machinery.
+
+                    The tool catalog stays the same across modes for request-cache stability. These plan-mode rules override any later tool description or guidance that suggests using mutation tools; those tools remain listed to keep the tool catalog unchanged. Do not use todo_write to track this planning phase: it tracks implementation after an approved plan, while the plan itself belongs in exit_plan_mode.
+
+                    Resolve discoverable facts by inspection. Use ask_user_question only for user-owned choices or material ambiguity that inspection cannot answer. Do not ask the user where code lives or how current behavior works when you can find it out.
+
+                    Make the plan decision-complete: state the goal and success criteria; group implementation changes by subsystem; identify public API, schema, and data-flow changes; cover edge cases, failure modes, tests, acceptance criteria, and explicit assumptions. Keep it concise enough to review but detailed enough that another engineer can implement it without making design decisions.
+
+                    When ready, call exit_plan_mode with the complete plan markdown, starting with a # title. Make exit_plan_mode the only and final tool call in that assistant response: it presents the plan for approval, and implementation begins only in a later step after approval. Do not paste the final plan as a plain reply or ask "should I proceed?" through prose or ask_user_question. If review rejects it, incorporate the feedback and present again. If the review channel is unavailable or aborted, stay in plan mode and ask the user to switch modes manually; do not proceed with implementation.
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: "@deepseek-ai/dsh-compaction-basic"
+              - id: command-compact
+                name: "@deepseek-ai/dsh-command-compact"
+              - id: tool-result-pruner
+                name: "@deepseek-ai/dsh-compaction-tool-result-pruner"
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: delegation
+            name: cordis:group
+            group: true
+            isolate:
+              workflowEngine: true
+            config:
+              - id: tool-subagent-control
+                name: "@deepseek-ai/dsh-tool-subagent-control"
+              - id: tool-subagent-list-agents
+                name: "@deepseek-ai/dsh-tool-subagent-control/list-agents"
+              - id: tool-subagent
+                name: "@deepseek-ai/dsh-tool-subagent"
+                config:
+                  provider: spawn
+                  toolName: subagent
+                  modelSelectionSettings: true
+              - id: tool-subagent-fork
+                name: "@deepseek-ai/dsh-tool-subagent"
+                config:
+                  provider: fork
+                  toolName: subagent_fork
+              - id: workflow-ptc
+                name: "@deepseek-ai/dsh-workflow-ptc"
+                config:
+                  provider: spawn
+              - id: tool-workflow
+                name: "@deepseek-ai/dsh-tool-workflow"
+          - id: tool-ask-user
+            name: "@deepseek-ai/dsh-tool-ask-user"
+          - id: tool-todo
+            name: "@deepseek-ai/dsh-tool-todo"
+            config:
+              allowParallelInProgress: true
+          - id: tool-web
+            name: "@deepseek-ai/dsh-tool-web"
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: present
+            name: "@deepseek-ai/dsh-tool-present"
+          - id: tool-plugin-manager
+            name: "@deepseek-ai/dsh-plugin-manager/tools"
+            disabled: true
+          - id: tool-plugin-market
+            name: "@deepseek-ai/dsh-plugin-market/tools"
+            disabled: true

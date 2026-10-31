@@ -5,7 +5,7 @@
 | 目录 | 平台 | 形态 | 内容 |
 |---|---|---|---|
 | [`zcode/`](zcode/) | ZCode | 本地插件市场根目录 | 两个插件：软件开发团队 0.2.1（`/dev-team` 工作流流水线）+ 椭圆形办公室 0.1.0（美国总统模拟器） |
-| [`deepSeekHarness/`](deepSeekHarness/) | DeepSeek Harness（DSH）桌面版 | Agent 预设（preset）交付 | 「软件开发团队」预设 `dev-team`：persona 团队章程 + Teams 组合包工具，自然语言直接召唤 |
+| [`deepSeekHarness/`](deepSeekHarness/) | DeepSeek Harness（DSH）桌面版 | Agent 预设（preset）交付 | 两个预设：软件开发团队 `dev-team`（persona 团队章程 + Teams 组合包工具）+ 椭圆形办公室 `oval-office`（白宫班底 persona + 挂载技能 + 部门角色派发） |
 
 ## zcode/ —— ZCode 本地插件市场
 
@@ -16,21 +16,33 @@
 
 安装、使用、验收与 0.2.1 审查报告的完整说明见 [zcode/README.md](zcode/README.md)。安装方式：ZCode **插件市场 → 添加插件市场**，粘贴本目录下的 `zcode` 路径，再到「个人」页安装。
 
-## deepSeekHarness/ —— DSH 的「软件开发团队」Agent 预设
+## deepSeekHarness/ —— DSH 的 Agent 预设交付
 
-`deepSeekHarness/` 是给 **DeepSeek Harness（DSH）桌面版**安装「软件开发团队」Agent 预设的完整交付物。预设（preset id = `dev-team`）把一个普通会话变成四人研发小队：研发 Lead 带队，产品经理定需求与验收标准、架构师出方案并拆任务、工程师从共享任务板认领任务并行实现、QA 按验收标准验证；小需求自动切快速模式，Lead 不组队直接做完。团队能力来自 DSH 的 Teams 组合包（`spawn_teammate` / `team_task_*` / `send_message` 等 9 个工具），预设本体只换一行 persona 团队章程。
+`deepSeekHarness/` 是给 **DeepSeek Harness（DSH）桌面版**安装 Agent 预设的完整交付物，目前有两个预设。
+
+**软件开发团队**（preset id = `dev-team`）把一个普通会话变成四人研发小队：研发 Lead 带队，产品经理定需求与验收标准、架构师出方案并拆任务、工程师从共享任务板认领任务并行实现、QA 按验收标准验证；小需求自动切快速模式，Lead 不组队直接做完。团队能力来自 DSH 的 Teams 组合包（`spawn_teammate` / `team_task_*` / `send_message` 等 9 个工具），预设本体只换一行 persona 团队章程。
+
+**椭圆形办公室**（preset id = `oval-office`，由 [zcode/oval-office](zcode/oval-office/) 移植）把一个会话变成白宫：用户是总统，白宫幕僚层按美国宪政法定管辖权把事务路由到 24 个政府部门角色之一（读出角色卡派发 `spawn_teammate` / `subagent`），输出 BLUF 简报、跨部门会议、行政令起草与危机推演。技能（主手册 + 四个命令协议）经预设的 `skill-filesystem` 挂载，`/daily-briefing`、`/cabinet`、`/executive-order`、`/situation-room` 可直接唤起。
 
 ```text
 deepSeekHarness/
-└── software-dev-team/
-    ├── install.ps1 / uninstall.ps1    一键安装/卸载（幂等，写前自动备份）
-    ├── preset-dev-team.patch.yml      预设声明本体（最小安装只需这一个文件）
-    ├── persona-dev-team.md            团队章程原文，便于单独阅读与改写
-    ├── reference/                     预设机制笔记 + 内置预设对照表（含与 zcode/ 版的差异）
+├── software-dev-team/
+│   ├── install.ps1 / uninstall.ps1    一键安装/卸载（幂等，写前自动备份）
+│   ├── preset-dev-team.patch.yml      预设声明本体（最小安装只需这一个文件）
+│   ├── persona-dev-team.md            团队章程原文，便于单独阅读与改写
+│   ├── reference/                     预设机制笔记 + 内置预设对照表（含与 zcode/ 版的差异）
+│   └── README.md                      安装、使用、验证、卸载、常见问题
+└── oval-office/
+    ├── install.ps1 / uninstall.ps1    一键安装/卸载（幂等，写前自动备份，自动修正技能挂载路径）
+    ├── preset-oval-office.patch.yml   预设声明本体（最小安装只需这一个文件）
+    ├── persona-oval-office.md         白宫班底章程原文，便于单独阅读与改写
+    ├── skills/                        技能根目录：oval-office 主手册 + references/ + 四个命令协议技能
+    ├── agents/                        24 个政府角色卡（派发时读出全文作为子代理 prompt）
+    ├── reference/                     移植映射（zcode → DSH）+ 挂载机制笔记
     └── README.md                      安装、使用、验证、卸载、常见问题
 ```
 
-安装方式：在该目录执行 `pwsh -File .\install.ps1`，把预设写入桌面 profile 的 patch 层。详见 [deepSeekHarness/software-dev-team/README.md](deepSeekHarness/software-dev-team/README.md)。
+安装方式：在各自目录执行 `pwsh -File .\install.ps1`，把预设写入桌面 profile 的 patch 层。详见 [deepSeekHarness/software-dev-team/README.md](deepSeekHarness/software-dev-team/README.md) 与 [deepSeekHarness/oval-office/README.md](deepSeekHarness/oval-office/README.md)。
 
 ## 两个版本的关系
 
@@ -45,6 +57,8 @@ deepSeekHarness/
 | 依赖关系 | 无 | 无（需 DSH profile 启用 Teams 组合包） |
 
 两边可同时保留、各自独立安装，没有共用文件。
+
+「椭圆形办公室」同样是双平台交付：`zcode/oval-office/` 是 ZCode 插件市场里的原版，`deepSeekHarness/oval-office/` 是 DSH 预设移植版——内容（技能手册、5 份机制文档、24 张角色卡、4 个命令协议）同源，派发机制按 DSH 工具改写，逐项映射见 [deepSeekHarness/oval-office/reference/port-map.md](deepSeekHarness/oval-office/reference/port-map.md)。
 
 ## 备注
 
