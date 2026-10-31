@@ -1,0 +1,14 @@
+{
+  "name": "oval-office",
+  "version": "0.1.0",
+  "description": "Play the President of the United States: 24 government roles (15 cabinet departments plus the intelligence, law-enforcement and White House staff layer), routed by statutory jurisdiction, delivering BLUF briefings, options papers and executive orders.",
+  "description_i18n": {
+    "zh-CN": "美国总统模拟器：15 个内阁部门 + 情报/执法/EOP 层共 24 个政府角色，按美国宪政法定路由分派政务，输出 BLUF 简报、选项文件与行政令。"
+  },
+  "author": {
+    "name": "lenny"
+  },
+  "skills": "skills",
+  "agents": "agents",
+  "commands": "commands"
+}

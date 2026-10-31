@@ -1,8 +1,13 @@
-# 软件开发团队 · ZCode 插件交付说明与审查报告
+# ZCode 本地插件市场 · 交付说明与审查报告
 
-本目录是一个 ZCode 本地插件市场的根目录，内含「软件开发团队」插件源码（版本 **0.2.1**）：在 ZCode 里召唤一支由**交付总监**带队的研发专家团——产品经理定需求、架构师做设计+拆任务、工程师批量并行实现代码、QA 做集成验收，小需求支持快速模式。0.2.1 起需求与方案文档受预算约束，审校为单轮短上下文，检查门禁由工作流确定性执行。
+本目录是一个 ZCode 本地插件市场的根目录（市场名 `dev-zcode-215ecc2f`），内含两个插件：
 
-本文档分两部分：**交付说明**（目录结构、安装、使用、验收）与**审查与优化报告**（这次为什么改、怎么改的、验证到什么程度、还剩哪些限制）。
+| 插件 | 版本 | 一句话说明 |
+|---|---|---|
+| **软件开发团队**（software-dev-team） | 0.2.1 | 在 ZCode 里召唤一支由**交付总监**带队的研发专家团——产品经理定需求、架构师做设计+拆任务、工程师批量并行实现代码、QA 做集成验收，小需求支持快速模式。0.2.1 起需求与方案文档受预算约束，审校为单轮短上下文，检查门禁由工作流确定性执行。 |
+| **椭圆形办公室**（oval-office） | 0.1.0 | 美国总统模拟器：以总统身份下达政务指令，15 个内阁部门 + 情报/执法/EOP 层共 24 个政府角色按美国宪政法定管辖权路由分派，输出 BLUF 简报、跨部门会议、行政令起草与危机推演。 |
+
+本文档分两部分：**交付说明**（目录结构、安装、使用、验收）与**审查与优化报告**（software-dev-team 0.1.x → 0.2.1 这次为什么改、怎么改的、验证到什么程度、还剩哪些限制）。
 
 ## 一、交付说明
 
@@ -10,41 +15,78 @@
 
 ```text
 zcode/                                   ← 本地测试市场根目录（粘贴到 ZCode 的就是它）
-├── marketplace.json                     市场清单（市场名 dev-zcode-215ecc2f，版本 0.2.1）
-└── software-dev-team/                   插件源码（software-dev-team，版本 0.2.1）
+├── marketplace.json                     市场清单（市场名 dev-zcode-215ecc2f，两个插件）
+├── software-dev-team/                   插件源码（software-dev-team，版本 0.2.1）
+│   ├── .zcode-plugin/plugin.json        插件清单
+│   ├── commands/
+│   │   ├── dev-team.md                  召唤入口：完整模式 /dev-team
+│   │   └── dev-team-fast.md             召唤入口：快速模式 /dev-team-fast
+│   ├── skills/software-dev-team/
+│   │   ├── SKILL.md                     交付总监手册：召唤协议、模式与成本预期、结果转述、失败排查、红线
+│   │   └── references/                  五个角色的职责文档
+│   │       ├── delivery-director.md       交付总监（主会话 + 短上下文审校）
+│   │       ├── product-manager.md         产品经理
+│   │       ├── architect.md               架构师
+│   │       ├── engineer.md                工程师
+│   │       └── qa.md                      QA 工程师
+│   ├── workflows/
+│   │   └── software-dev-team.dwf.ts      团队流水线（完整/快速双模式）
+│   ├── CHANGELOG.md                     0.2.1 变更清单与实测依据
+│   └── README.md                        插件自身说明
+└── oval-office/                         插件源码（oval-office，版本 0.1.0）
     ├── .zcode-plugin/plugin.json        插件清单
+    ├── agents/                          24 个政府角色卡（派发给子代理按部门口吻呈报）
+    │   ├── attorney-general.md          司法部长
+    │   ├── cia-director.md              中央情报局局长
+    │   ├── director-of-national-intelligence.md   国家情报总监（DNI）
+    │   ├── fbi-director.md              联邦调查局局长
+    │   ├── ice-director.md              移民与海关执法局（ICE）局长
+    │   ├── irs-commissioner.md          国税局（IRS）专员
+    │   ├── national-security-advisor.md 国家安全顾问（NSA）
+    │   ├── press-secretary.md           白宫新闻秘书
+    │   ├── secretary-of-agriculture.md  农业部长
+    │   ├── secretary-of-commerce.md     商务部长
+    │   ├── secretary-of-defense.md      国防部长
+    │   ├── secretary-of-education.md    教育部长
+    │   ├── secretary-of-energy.md       能源部长
+    │   ├── secretary-of-hhs.md          卫生与公众服务部长
+    │   ├── secretary-of-homeland-security.md   国土安全部长
+    │   ├── secretary-of-hud.md          住房与城市发展部长
+    │   ├── secretary-of-labor.md        劳工部长
+    │   ├── secretary-of-state.md        国务卿
+    │   ├── secretary-of-the-interior.md 内政部长
+    │   ├── secretary-of-transportation.md   交通部长
+    │   ├── secretary-of-treasury.md     财政部长
+    │   ├── secretary-of-veterans-affairs.md  退伍军人事务部长
+    │   ├── white-house-chief-of-staff.md    白宫幕僚长
+    │   └── white-house-counsel.md       白宫法律顾问
     ├── commands/
-    │   ├── dev-team.md                  召唤入口：完整模式 /dev-team
-    │   └── dev-team-fast.md             召唤入口：快速模式 /dev-team-fast
-    ├── skills/software-dev-team/
-    │   ├── SKILL.md                     交付总监手册：召唤协议、模式与成本预期、结果转述、失败排查、红线
-    │   └── references/                  五个角色的职责文档
-    │       ├── delivery-director.md       交付总监（主会话 + 短上下文审校）
-    │       ├── product-manager.md         产品经理
-    │       ├── architect.md               架构师
-    │       ├── engineer.md                工程师
-    │       └── qa.md                      QA 工程师
-    ├── workflows/
-    │   └── software-dev-team.dwf.ts      团队流水线（完整/快速双模式）
-    ├── CHANGELOG.md                     0.2.1 变更清单与实测依据
-    └── README.md                        插件自身说明
+    │   ├── daily-briefing.md            总统每日简报（PDB 风格）/daily-briefing
+    │   ├── cabinet.md                   跨部门会议（NSC 部长委员会/内阁）/cabinet
+    │   ├── executive-order.md           行政令起草（1 CFR Part 19 流程）/executive-order
+    │   └── situation-room.md            危机模式：情况室会议 + 红队推演 /situation-room
+    └── skills/oval-office/
+        ├── SKILL.md                     白宫班底手册：角色框架、法定路由规则、BLUF 呈报格式
+        └── references/                  机制文档
+            ├── routing-table.md         57 条法定路由表（主责/协同部门判定）
+            ├── departments.md           24 个部门职责与越权边界
+            ├── briefing-style.md         情报呈报行话与置信度标注规范
+            ├── decision-flow.md          Youngstown 三分法、战争权力决议等决策流程
+            └── cases.md                  历史危机案例素材
 ```
-
-两种模式的流水线：
-
-- **完整模式**：产品经理界定需求（预算受控）→ 交付总监审校需求（短上下文单轮）→ 架构师设计并拆任务（任务自包含）→ 交付总监审校方案（短上下文单轮）→ 工程师按依赖波次并行实现 → 确定性检查（测试/构建/静态检查）→ QA 集成验收（不过则一轮修复）→ 确定性汇总交付报告。
-- **快速模式**：技术负责人（产品+架构二合一）一次产出需求与方案 → 一次快审 → 工程师并行实现 → 确定性检查 → QA 集成验收 → 汇总。
 
 ### 安装步骤
 
 1. 打开 **插件市场 / Plugin Marketplace** → **添加 / Add → 添加插件市场 / Add Plugin Marketplace**。
 2. 粘贴市场根目录：`D:\web\dev-team\zcode`（就是本 README 所在的目录），点击添加。
-3. 添加成功后进入 **个人 / Personal**，找到「软件开发团队」（版本 0.2.1），点击 **安装 / Install**。
+3. 添加成功后进入 **个人 / Personal**，找到「软件开发团队」（版本 0.2.1）与「椭圆形办公室」（版本 0.1.0），分别点击 **安装 / Install**。
 4. 安装后可在 **设置 → 插件 / Settings → Plugins** 管理启用状态。
 
 后续更新：在市场源里点该市场的**刷新**，再到「个人」里对插件点**更新**；源码改动不会热更新，必须走这两步。
 
 ### 使用方式
+
+#### 软件开发团队
 
 安装后新建任务，在输入框直接召唤：
 
@@ -53,7 +95,25 @@ zcode/                                   ← 本地测试市场根目录（粘�
 
 拿不准就用完整模式。运行期间主代理以交付总监身份工作：提交工作流、回答子代理的阻塞问题、结束时按「结论 / 问题 / 已验证 / 未覆盖」如实转述，不重跑整轮、不隐瞒未覆盖项。
 
+两种模式的流水线：
+
+- **完整模式**：产品经理界定需求（预算受控）→ 交付总监审校需求（短上下文单轮）→ 架构师设计并拆任务（任务自包含）→ 交付总监审校方案（短上下文单轮）→ 工程师按依赖波次并行实现 → 确定性检查（测试/构建/静态检查）→ QA 集成验收（不过则一轮修复）→ 确定性汇总交付报告。
+- **快速模式**：技术负责人（产品+架构二合一）一次产出需求与方案 → 一次快审 → 工程师并行实现 → 确定性检查 → QA 集成验收 → 汇总。
+
+#### 椭圆形办公室
+
+安装后新建任务，直接用总统口吻下指令或点用命令：
+
+- `/daily-briefing [重点关注方向]` —— 生成当日总统每日简报（PDB 风格）：全球动态、国内要务、72 小时风险与今日议程建议；
+- `/cabinet <议题>` —— 就指定议题召开跨部门会议：相关部门表态、分歧点、选项与建议；
+- `/executive-order <主题>` —— 按 1 CFR Part 19 正式流程起草行政令，附 OMB/司法部审签意见与 Youngstown 合法度评估；
+- `/situation-room <危机描述>` —— 危机模式：还原/构建危机时间线，召开情况室会议，红队推演，给出选项与建议。
+
+不记命令也行——直接说「去看看某某事怎么回事」「召集内阁谈谈对华关税」「某国政变该怎么应对」，技能会按美国宪政法定管辖权把事务路由到 24 个部门角色之一（需要真实世界核实时派发对应部门代理，如 `oval-office:secretary-of-state`；假设性/分析性问题由白宫班底直接以该部门口吻呈报）。所有呈报统一 BLUF 格式：机密等级（按需）→ 结论 → 事实（含置信度）→ 对总统的影响 → 选项 → 部门立场与建议；情报用 "We assess with high confidence that…" 标注置信度，部门意见相左时如实并列、不伪造共识。
+
 ### 验收方式
+
+#### 软件开发团队
 
 安装后新建任务，输入：
 
@@ -75,16 +135,31 @@ zcode/                                   ← 本地测试市场根目录（粘�
 /dev-team-fast 写一个华氏度转摄氏度的命令行脚本，带 pytest 测试
 ```
 
+#### 椭圆形办公室
+
+安装后新建任务，输入：
+
+```text
+/daily-briefing 亚太
+```
+
+预期可观察结果：
+
+1. 输出一份 PDB 风格简报：开篇日期 + 机密标注，3-5 条全球动态（每条带来源类型与置信度）、2-3 条国内要务、需总统注意的 72 小时风险、今日议程建议；
+2. 情报判断带置信度句式，未证实的传闻明说 "We have not been able to corroborate…"；
+3. 再试 `/cabinet 对华关税再加一档`：能看到主责部门（财政部/USTR）与协同部门（商务部等）分别呈报，分歧点如实并列；
+4. 试 `/situation-room 1962 古巴导弹危机`：能还原时间线、召开情况室会议、红队推演最坏情形，最后给出带法律依据的选项与建议。
+
 ### 备注
 
-- `docs/dev-team/` 是团队每次运行重新生成的产出；若目标仓库的 `.gitignore` 没有忽略它，请自行加一条（需要留存需求文档溯源就放开）。
+- `docs/dev-team/` 是软件开发团队每次运行重新生成的产出；若目标仓库的 `.gitignore` 没有忽略它，请自行加一条（需要留存需求文档溯源就放开）。
 - 工作流脚本的完整类型检查在首次 `/dev-team` 提交时由 ZCode 工作流编译器完成；若收到编译诊断，按提示修正 `workflows/software-dev-team.dwf.ts` 后重新提交即可。
 - 本目录为本地测试市场，不等于公开发布；换机器使用需重新执行上面的添加步骤。
 - 0.2.1 的变更细节与实测依据见 `software-dev-team/CHANGELOG.md`。
 
 ---
 
-## 二、审查与优化报告（0.1.x → 0.2.1）
+## 二、审查与优化报告（software-dev-team 0.1.x → 0.2.1）
 
 > 触发原因：一次「本地待办清单 CLI」完整模式运行耗时 **1 小时 22 分**、消耗 **约 1800 万 token**。
 > 结论：根因不是模型慢，而是**工作流结构把每一轮验证与每一份文档重复读进上下文**。0.2.1 通过删冗余验证层、给文档与验收标准设预算、把审校换成短上下文、把质量门禁改成确定性执行来降本，同时修掉 13 个会导致「假通过 / 整轮作废」的真实缺陷。
@@ -194,7 +269,7 @@ run 3 的 18.63M 里，**92.8% 是缓存命中的重复输入**，真正新增�
 ### 2.6 预期成本与时长（目标区间，待真机复测）
 
 | 场景 | 预计会话数 | 预计 token | 预计墙钟 |
-| --- | --- | --- | --- |
+| --- | ---: | ---: | ---: |
 | 快速模式（1 任务，小需求） | 4 | 0.5–1.2M | 6–15 分钟 |
 | 完整模式 small（2 任务） | 7 | 1.0–2.5M | 10–20 分钟 |
 | 完整模式 medium（3 任务，待办 CLI 同类） | 8 | 1.7–3.5M | 15–30 分钟 |

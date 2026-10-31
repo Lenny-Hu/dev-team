@@ -13,6 +13,20 @@
       "description_i18n": {
         "zh-CN": "召唤软件开发团队：产品经理定需求、架构师设计+拆任务、工程师并行实现、QA 集成验收；文档受预算约束、门禁确定性执行，小需求支持快速模式"
       }
+    },
+    {
+      "name": "oval-office",
+      "source": "./oval-office",
+      "version": "0.1.0",
+      "description": "Play the President of the United States: 24 government roles routed by statutory jurisdiction, delivering BLUF briefings, options papers and executive orders.",
+      "displayName": "Oval Office",
+      "displayName_i18n": {
+        "zh-CN": "椭圆形办公室 · 美国总统模拟器"
+      },
+      "description_i18n": {
+        "zh-CN": "扮演美国总统：24 个政府部门角色按美国宪政法定路由分派政务，输出 BLUF 简报、选项文件与行政令。"
+      },
+      "category": "other"
     }
   ]
 }
