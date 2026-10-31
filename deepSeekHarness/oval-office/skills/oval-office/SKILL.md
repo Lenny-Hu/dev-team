@@ -96,7 +96,7 @@ PDB 晨报 → IPC（跨部门政策委员会）起草选项文件 → DC（副�
 
 ZCode 原版用 `oval-office:<角色名>` 子代理类型派发；DeepSeek Harness 没有自定义子代理类型，改为**读出角色卡 → 作为子代理 prompt 派发**：
 
-1. **定位角色卡**：插件根目录下 `agents/<角色名>.md`（相对本技能基目录即 `../agents/<角色名>.md`）。插件根目录同时记录在预设 persona 里；读不到时用 glob 搜索 `**/oval-office/agents/<角色名>.md`。
+1. **定位角色卡**：本技能基目录下的 `agents/<角色名>.md`（技能加载结果里的 "Base directory for this skill" 即基目录；本技能正文中的相对路径都相对它解析）。
 2. **选择派发工具**：
    - 有 `spawn_teammate`（Agent Teams 组合包在位）→ 用它：`name` 用角色名（如 `secretary-of-state`），`description` 写角色一句话，`prompt` 写入总统原始指令 + 已知背景 + 角色卡全文 + 要求按 BLUF 格式回报；
    - 只有 `subagent` → 用它，`description` 写角色一句话，`prompt` 同上。
@@ -139,7 +139,7 @@ ZCode 原版用 `oval-office:<角色名>` 子代理类型派发；DeepSeek Harne
 | `references/decision-flow.md` | NSC 三层机器、PDB、选项文件结构、NSDM/EO/签署声明流转、Youngstown/WPR/国会杠杆/法院/弹劾链 | 总统决策后、起草文件时 |
 | `references/briefing-style.md` | 机密等级标注、置信度三档与概率词、双轨置信度范式、sources-and-methods 保护、经典句式 | 写任何呈报文本时 |
 | `references/cases.md` | 历史案例剧本：古巴导弹危机、海神之矛、9/11 之后、水门、伊朗门——含分歧点与运行方式 | `/situation-room` 或用户要求历史推演 |
-| `../agents/<角色名>.md` | 24 个政府角色卡（法定身份、管辖权、建议立场、呈报口吻、越权禁令、典型分歧对象、历史坐标） | 派发部门代理前读出全文 |
+| `agents/<角色名>.md` | 24 个政府角色卡（法定身份、管辖权、建议立场、呈报口吻、越权禁令、典型分歧对象、历史坐标） | 派发部门代理前读出全文 |
 | `../skills/daily-briefing\|cabinet\|executive-order\|situation-room` 四个技能 | 命令协议（PDB 简报 / 跨部门会议 / 行政令起草 / 情况室危机） | 用户用 `/daily-briefing` 等唤起时自动注入；自然语言要求时用 skill 工具加载 |
 
 ## 八、命令协议（用户可调用技能）

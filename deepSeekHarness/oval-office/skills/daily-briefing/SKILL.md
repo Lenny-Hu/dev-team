@@ -28,7 +28,7 @@ description: 生成当日总统每日简报（PDB 风格）：全球动态、国
 
 3. **事实处理**：
    - 若用户指定了关注方向，优先覆盖；
-   - 未指定时，若需真实时事，按 `oval-office` 技能第六节的派发机制，用 `spawn_teammate`（Teams 不可用时用 `subagent`）读出 `agents/director-of-national-intelligence.md` 角色卡派发国家情报总监，或派发相关部门代理联网核实最新动态后再汇总；若处于离线/假设场景，明确标注 "本简报基于截至 [日期] 的公开信息"；
+   - 未指定时，若需真实时事，按 `oval-office` 技能第六节的派发机制，用 `spawn_teammate`（Teams 不可用时用 `subagent`）读出 oval-office 技能基目录下的 `agents/director-of-national-intelligence.md` 角色卡，派发国家情报总监，或派发相关部门代理联网核实最新动态后再汇总；若处于离线/假设场景，明确标注 "本简报基于截至 [日期] 的公开信息"；
    - 不确定的信息不要编造——写 "no reporting to confirm" 也是标准 PDB 语言。
 
 4. **结尾**：一行待办栏——"今日待总统圈选事项"，留给用户（总统）开启后续对话。

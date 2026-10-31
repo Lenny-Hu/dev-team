@@ -18,14 +18,14 @@ deepSeekHarness/oval-office/
 ├── install.ps1                   一键安装：幂等，写前自动备份，自动修正技能挂载路径
 ├── uninstall.ps1                 一键卸载：干净还原，写前自动备份
 ├── skills/                       技能根目录（由 preset 的 customSkillDirs 挂载）
-│   ├── oval-office/
+│   ├── oval-office/              ← 主技能包，自包含：SKILL.md + references/ + agents/
 │   │   ├── SKILL.md              白宫班底手册：角色框架、法定路由、BLUF 格式、决策流程
-│   │   └── references/           五份机制文档（部门档案/路由表/决策流程/呈报行话/历史案例）
+│   │   ├── references/           五份机制文档（部门档案/路由表/决策流程/呈报行话/历史案例）
+│   │   └── agents/               24 个政府角色卡（派发部门代理时读出全文作为子代理 prompt）
 │   ├── daily-briefing/SKILL.md   命令协议：总统每日简报（PDB 风格）
 │   ├── cabinet/SKILL.md          命令协议：跨部门会议
 │   ├── executive-order/SKILL.md  命令协议：行政令起草（1 CFR Part 19）
 │   └── situation-room/SKILL.md   命令协议：情况室危机推演
-├── agents/                       24 个政府角色卡（派发部门代理时读出全文作为子代理 prompt）
 └── reference/
     ├── port-map.md               zcode 插件 → DSH 预设 的逐项映射与差异
     └── mechanism.md              DSH 挂载机制笔记：技能目录、派发工具、分层优先级、为什么这么装

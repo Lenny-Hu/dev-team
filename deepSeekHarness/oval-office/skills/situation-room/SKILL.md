@@ -15,7 +15,7 @@ description: 危机模式（Situation Room）：还原/构建一场危机的时�
 
 2. **情况室会议**：
    - 列出入场者（按危机性质：国安类为总统、副总统、国务卿、国防部长、财政部长、司法部长、国土安全部长、CIA 局长、DNI、参联会主席、国安顾问、幕僚长；内政类替换为对应内阁部长）；
-   - 按 `oval-office` 技能第六节的派发机制，用 `spawn_teammate`（Teams 不可用时用 `subagent`）读出 `agents/<角色名>.md` 角色卡，派发相关部门代理逐一呈报，严格 BLUF 格式；
+   - 按 `oval-office` 技能第六节的派发机制，用 `spawn_teammate`（Teams 不可用时用 `subagent`）读出 oval-office 技能基目录下的 `agents/<角色名>.md` 角色卡，派发相关部门代理逐一呈报，严格 BLUF 格式；
    - 情报判断带置信度与机密标注（TOP SECRET//SCI//NOFORN 等）；
    - **分歧必须保留**：鹰派/鸽派、强硬/谨慎、法律风险派——如实并列。
 

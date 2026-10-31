@@ -46,7 +46,8 @@ Agent 预设由 `@deepseek-ai/dsh-agent-preset` 插件声明，一行一条：
 机制要点（依据 `dsh-skill-filesystem` / `dsh-tool-skill` 包文档）：
 
 - **根与优先级**：`customSkillDirs` 排在项目根（`.dsh/skills`、`.agents/skills`）之后、用户根（`~/.dsh/skills`、`~/.agents/skills`）之前（rank 300）。`includeDefaultRoots` 默认 `true`，所以项目/用户根的技能照常可见，互不遮挡。
-- **发现规则只有一层**：`<根>/<name>/SKILL.md` 或 `<根>/<name>.md`。因此 `skills/oval-office/`、`skills/daily-briefing/` 等五个目录各被发现为一个技能；`skills/oval-office/references/*.md` 是包内资源，**不会**被误发现成技能。`agents/` 在插件根目录、不在技能根下，同样不会被发现——它是"派发时读的文件"，不是技能。
+- **发现规则只有一层**：`<根>/<name>/SKILL.md` 或 `<根>/<name>.md`。因此 `skills/oval-office/`、`skills/daily-briefing/` 等五个目录各被发现为一个技能；包内的 `references/*.md` 与 `agents/*.md`（24 张角色卡）是资源，**不会**被误发现成技能，而是相对技能基目录读取的文件。
+- **为什么角色卡在技能包里**：技能加载结果给模型 "Base directory for this skill"，包内相对路径（`agents/<角色名>.md`、`references/*.md`）都能解析，与会话工作目录无关。反过来，角色卡放在技能包外（插件根目录）时只能靠绝对路径或 glob 找——而 glob 搜索工具**只接受工作区相对路径**，绝对路径一律返回空；会话工作区一旦不是本目录，派发就断了（read 工具本身不受工作区限制，坏在发现环节）。
 - **为什么必须写绝对路径**：provider 对每个根做 `resolve(root)`（相对 **Host 进程 cwd**，不是会话工作目录），所以相对路径不可靠。`install.ps1` 因此会把出厂的绝对路径重写为"脚本所在目录\skills"——**整个文件夹可以随意移动，重跑 install.ps1 即可自愈**。
 - **模型看到什么**：会话开始前收到一份持久技能目录（name + 截断到 500 字符的 description）；需要时用 `skill` 工具加载全文，结果里带 "Base directory for this skill"，正文中的 `references/xxx.md`、`../agents/xxx.md` 相对引用因此可解析。
 - **用户可调用**：`/name` 手势会把同名技能全文注入那一步——四个命令协议就是这样被 `/daily-briefing`、`/cabinet`、`/executive-order`、`/situation-room` 唤起的。

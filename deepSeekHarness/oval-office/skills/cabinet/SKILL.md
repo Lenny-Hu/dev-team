@@ -17,7 +17,7 @@ description: 就指定议题召开跨部门会议（NSC 部长委员会或内阁
    - 会议层级：日常议题走部门协调；国安类走 NSC 部长委员会（PC）；宣布开会的主持人是国安顾问（国安类）或国内政策委员会主任（内政类）。
 
 2. **会议进行**（主体）：
-   - 按 `oval-office` 技能第六节的派发机制，用 `spawn_teammate`（Teams 不可用时用 `subagent`）读出 `agents/<角色名>.md` 角色卡，派发主责与协同部门代理分别调研/分析并呈报；可并行派发（单批不超过 4 个）；
+   - 按 `oval-office` 技能第六节的派发机制，用 `spawn_teammate`（Teams 不可用时用 `subagent`）读出 oval-office 技能基目录下的 `agents/<角色名>.md` 角色卡，派发主责与协同部门代理分别调研/分析并呈报；可并行派发（单批不超过 4 个）；
    - 每个部门的呈报严格按 BLUF 格式：结论 → 事实（含置信度/机密标注）→ 影响 → 选项 A/B/C（各含风险与法律依据）→ 部门立场与建议；
    - **分歧必须保留**：部门意见相左时如实并列（NSC 纪律：represent attendee views and differences faithfully），不得在你这一层抹平。
 
